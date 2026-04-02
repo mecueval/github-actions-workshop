@@ -5,4 +5,4 @@ def test_sum()-> None:
 
 #introducir un fallo premeditado
 def test_resta()-> None:
-    assert resta(5, 3) == 1
+    assert resta(5, 3) == 2
