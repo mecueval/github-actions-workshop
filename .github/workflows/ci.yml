@@ -8,8 +8,22 @@ on:
 #jobs
 #con una misma tuberia CI se pueden validar multiples configuraciones de entornos de ejecucion
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up Python 
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"  
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run lint
+        run: ruff check .
   test:
     runs-on: ubuntu-latest
+    needs: lint #le hace dependiente de lint
     strategy:
       matrix:
         python-version: ["3.10", "3.13"]
@@ -24,3 +38,5 @@ jobs:
         run: pip install -r requirements.txt 
       - name: Run tests
         run: pytest 
+
+
