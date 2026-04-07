@@ -79,7 +79,7 @@ jobs:
             type: ref, event=tag
             type: sha
       - name: Print generated tags
-        run: echo  ${{ steps.meta.outputs.tags }}"
+        run: echo  "${{ steps.meta.outputs.tags }}"
       - name: Build & Push Docker image
         uses: docker/build-push-action@v6
         with:
