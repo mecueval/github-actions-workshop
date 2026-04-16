@@ -3,3 +3,7 @@ from app.endpoints_calculator import router  # Ajusta el nombre
 
 app = FastAPI()
 app.include_router(router)
+
+@app.get("/")
+def dummy_get():
+    return {"message": "Hello World"}
