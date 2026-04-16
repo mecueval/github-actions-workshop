@@ -6,4 +6,4 @@ app.include_router(router)
 
 @app.get("/")
 def dummy_get():
-    return {"message": "Hello World"}
+    return {"message": "Hello World Dev"}
