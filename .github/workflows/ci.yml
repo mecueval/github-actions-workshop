@@ -5,6 +5,7 @@ on:
   push:
       branches:
         - main
+        - dev
       tags:
         - "v*"
   pull_request:
@@ -88,6 +89,50 @@ jobs:
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  docker-push-dev:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/dev')
+
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Login in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-workshop
+          tags: |
+            type = raw, value=dev
+            type = sha, prefix=dev-
+      - name: Print generated tags
+        run: echo  "${{ steps.meta.outputs.tags }}"
+      - name: Build & Push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: docker-push-dev
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/dev')
+    steps:
+      - name: Trigger render DEV deploy
+        run: curl -X POST "${{secrets.RENDER_DEV_DEPLOY_HOOK }}"
+  
   deploy-prod:
     runs-on: ubuntu-latest
     needs: docker-push
